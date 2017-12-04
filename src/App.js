@@ -27,38 +27,95 @@ class App extends Component {
     this.nameSearch = this.nameSearch.bind(this);
     this.resetData = this.resetData.bind(this);
     this.byYear = this.byYear.bind(this);
+
+    this.baseURL = 'https://joes-autos.herokuapp.com';
+    this.getVehiclesURL = '/api/vehicles';
+    this.colorQuery = '?color=';
+    this.yearQuery = '?year=';
+    this.makeQuery = '?make=';
+    this.getBuyersURL = '/api/buyers';
+    this.deleteURL = '/:id';
   }
 
   getVehicles() {
-    // axios (GET)
-    // setState with response -> vehiclesToDisplay
+    axios.get(this.baseURL + this.getVehiclesURL)
+    .then(res => {
+      if (res.status === 200) {
+        ToastStore.success('Success!', 3000)
+        this.setState({vehiclesToDisplay: res.data})
+      } else {
+        ToastStore.error('Uh, oh! We got code issues!', 3000)
+      }
+    }).catch((e)=>{
+      var crap = 'oh crap it exploded....'
+    })
   }
 
   getPotentialBuyers() {
-    // axios (GET)
-    // setState with response -> buyersToDisplay
+    axios.get(this.baseURL + this.getBuyersURL)
+    .then(res => {
+      if(res.status === 200){
+        ToastStore.success('Success!', 3000)
+        this.setState({buyersToDisplay: res.data})
+      }else{
+        ToastStore.error('Crap, something exploded... sshhh...', 3000);
+      }
+    })
   }
 
   sellCar(id) {
-    // axios (DELETE)
-    // setState with response -> vehiclesToDisplay
+    var url = this.baseURL + this.getVehiclesURL + '/' + id;
+    axios.delete(this.baseURL + this.getVehiclesURL + '/' + id)
+      .then(res => {
+        if (res.status === 200) {
+          ToastStore.success('Success!', 3000)
+          this.setState({ vehiclesToDisplay: res.data.vehicles })
+        } else {
+          ToastStore.error('Crap, something exploded... sshhh...', 3000);
+        }
+      }).catch((e) =>{
+        var crap = 'crap something exploded...'
+      })
   }
 
   filterByMake() {
     let make = this.refs.selectedMake.value
-    // axios (GET)
-    // setState with response -> vehiclesToDisplay
+    axios.get(this.baseURL + this.getVehiclesURL + this.makeQuery + make)
+      .then(res => {
+        if (res.status === 200) {
+          ToastStore.success('Success!', 3000)
+          this.setState({ vehiclesToDisplay: res.data })
+        } else {
+          ToastStore.error('Uh, oh! We got code issues!', 3000)
+        }
+      })
   }
 
   filterByColor() {
     let color = this.refs.selectedColor.value;
-    // axios (GET)
-    // setState with response -> vehiclesToDisplay
+    axios.get(this.baseURL + this.getVehiclesURL + this.colorQuery + color)
+      .then(res => {
+        if (res.status === 200) {
+          ToastStore.success('Success!', 3000)
+          this.setState({ vehiclesToDisplay: res.data })
+        } else {
+          ToastStore.error('Uh, oh! We got code issues!', 3000)
+        }
+      })
   }
 
-  updatePrice(priceChange) {
-    // axios (PUT)
-    // setState with response -> vehiclesToDisplay
+  updatePrice(priceChange, id) {
+    axios.put(this.baseURL + '/api/vehicles/' + id + '/' + priceChange)
+    .then(res => {
+      if(res.status === 200){
+        ToastStore.success('Success!', 3000)
+        this.setState({vehiclesToDisplay: res.data.vehicles})
+      }else{
+        ToastStore.error('Uh, oh! We got code issues!', 3000)
+      }
+    }).catch((e) =>{
+      var crap = 'oh crap';
+    })
   }
 
   addCar(){
@@ -69,8 +126,17 @@ class App extends Component {
     year: this.refs.year.value,
     price: this.refs.price.value
   }  
-  // axios (POST)
-  // setState with response -> vehiclesToDisplay
+  axios.post(this.baseURL + this.getVehiclesURL, newCar)
+    .then(res => {
+      if (res.status === 200) {
+        ToastStore.success('Success!', 3000)
+        this.setState({vehiclesToDisplay: res.data.vehicles})
+      } else {
+        ToastStore.error('Uh, oh! We got code issues!', 3000)
+      }
+    }).catch((e) => {
+      var crap = 'oh crap';
+    });
 }
 
 addBuyer() {
@@ -79,20 +145,53 @@ addBuyer() {
     phone: this.refs.phone.value,
     address: this.refs.address.value
   }
-  //axios (POST)
-  // setState with response -> buyersToDisplay
+  axios.post(this.baseURL + this.getBuyersURL, newBuyer)
+    .then(res => {
+      if (res.status === 200) {
+        ToastStore.success('Success!', 3000)
+        this.setState({ buyersToDisplay: res.data.buyers })
+      } else {
+        ToastStore.error('Uh, oh! We got code issues!', 3000)
+      }
+    });
 }
 
 nameSearch() {
-  // axios (GET)
-  // setState with response -> buyersToDisplay
   let searchLetters = this.refs.searchLetters.value;
+  axios.get(this.baseURL + this.getBuyersURL + '/?name=' + searchLetters)
+    .then(res => {
+      if(res.status === 200){
+        ToastStore.success('Success!', 3000);
+        this.setState({buyersToDisplay: res.data})
+      }else{
+        ToastStore.error('Uh, oh! We got code issues!', 3000)
+      }
+    })
 }
 
 byYear() {
   let year = this.refs.searchYear.value;
-  // axios (GET)
-  // setState with response -> vehiclesToDisplay
+  axios.get(this.baseURL + this.getVehiclesURL + this.yearQuery + year)
+    .then(res => {
+      if (res.status === 200) {
+        ToastStore.success('Success!', 3000)
+        this.setState({ vehiclesToDisplay: res.data })
+      } else {
+        ToastStore.error('Uh, oh! We got code issues!', 3000)
+      }
+    })
+}
+
+removeBuyer(id){
+  axios.delete(this.baseURL + this.getBuyersURL + '/' + id)
+    .then(res => {
+      if(res.status === 200){
+        ToastStore.success('Success!', 3000)
+        this.setState({buyersToDisplay: res.data.buyers})
+      }else{
+        ToastStore.error('Uh, oh! We got code issues!', 3000)
+      }
+    })
 }
 
 // ==============================================
@@ -126,11 +225,11 @@ resetData(dataToReset) {
           <p>Price: { v.price }</p>
           <button
             className='btn btn-sp'
-            onClick={ () => this.updatePrice('up') }
+            onClick={ () => this.updatePrice('up', v.id) }
             >Increase Price</button>
           <button
             className='btn btn-sp'
-            onClick={ () => this.updatePrice('down') }
+            onClick={ () => this.updatePrice('down', v.id) }
             >Decrease Price</button>  
           <button 
             className='btn btn-sp'
@@ -147,7 +246,7 @@ resetData(dataToReset) {
           <p>Name: {person.name}</p>
           <p>Phone: {person.phone}</p>
           <p>Address: {person.address}</p>
-          <button className='btn'>No longer interested</button>
+          <button className='btn' onClick={()=>this.removeBuyer(person.id)}>No longer interested</button>
           <hr className='hr' />
         </div> 
       )
